@@ -1,0 +1,16 @@
+{
+  "name": "charigo-landing-page",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ChariGo landing page with an email subscription form.",
+  "scripts": {
+    "start": "node server.js",
+    "preview:email": "node scripts/preview-email.js"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.0"
+  }
+}
