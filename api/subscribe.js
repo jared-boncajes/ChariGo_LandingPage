@@ -4,6 +4,7 @@
 const nodemailer = require('nodemailer');
 const { isValidEmailFormat, domainAcceptsMail } = require('../lib/validate-email');
 const { buildSubscriptionEmail } = require('../lib/email-template');
+const subscribers = require('../lib/subscribers');
 
 const RATE_LIMIT = 5; // requests per window, per visitor
 const RATE_WINDOW_MS = 10 * 60 * 1000;
@@ -106,6 +107,23 @@ module.exports = async function handler(req, res) {
     return send(res, 503, { ok: false, message: 'Subscriptions are not available right now. Please try again later.' });
   }
 
+  // One subscription per email address: save it, and stop here if it was already saved.
+  const remembers = subscribers.isConfigured();
+  if (remembers) {
+    try {
+      if (!(await subscribers.addSubscriber(email))) {
+        return send(res, 200, {
+          ok: true,
+          alreadySubscribed: true,
+          message: `${email} is already subscribed. You're all set!`,
+        });
+      }
+    } catch (err) {
+      console.error('Subscriber list unavailable:', err.message);
+      return send(res, 503, { ok: false, message: 'Subscriptions are not available right now. Please try again later.' });
+    }
+  }
+
   const from = process.env.MAIL_FROM || `ChariGo <${process.env.SMTP_USER}>`;
   try {
     const message = buildSubscriptionEmail({ email });
@@ -120,6 +138,8 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error('Subscribe failed:', err.message);
+    // The email never went out, so take the address back off the list and let them retry.
+    if (remembers) await subscribers.removeSubscriber(email).catch(() => {});
     return send(res, 502, { ok: false, message: "We couldn't send your confirmation email. Please try again." });
   }
 

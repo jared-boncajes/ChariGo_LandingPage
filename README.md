@@ -12,6 +12,7 @@ subscribes, they receive a ChariGo-branded confirmation email.
 | `lib/email-template.js` | The subscription email (edit the wording and design here) |
 | `lib/validate-email.js` | Email validation used by the server |
 | `lib/email-assets.js` | Logo and photos embedded in the email |
+| `lib/subscribers.js` | Saves subscribers so each address subscribes once |
 | `server.js` | Small Node server for local use or any Node host |
 
 ## Email validation
@@ -64,6 +65,21 @@ its own host, port, user and password.
 | `SMTP_PASS` | yes | SMTP password or app password |
 | `MAIL_FROM` | no | "From" line, e.g. `ChariGo <hello@example.com>` |
 | `NOTIFY_EMAIL` | no | Receives a note each time someone subscribes |
+| `SUBSCRIBERS_KV_REST_API_URL` | no | Upstash Redis address (added by Vercel when the database is connected) |
+| `SUBSCRIBERS_KV_REST_API_TOKEN` | no | Upstash Redis token (added by Vercel) |
+
+## Subscriber list
+
+When an Upstash Redis database is connected (Vercel → Storage), every subscriber is saved
+and each email address can subscribe only once; a repeat gets an "already subscribed"
+message and no second email. Capital letters are ignored when comparing addresses.
+
+To see the list, open the database from Vercel's Storage tab, go to its data browser,
+and open the key `charigo:subscribers`. Each entry is an email address with the date it
+subscribed. To unsubscribe someone, delete their entry there.
+
+Without a database (for example when running locally), nothing is stored and repeat
+subscriptions are allowed.
 
 ## Deploy
 
