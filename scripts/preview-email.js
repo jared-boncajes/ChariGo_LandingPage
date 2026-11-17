@@ -6,10 +6,7 @@ const assets = require('../lib/email-assets');
 const { buildSubscriptionEmail } = require('../lib/email-template');
 
 const out = path.resolve(process.argv[2] || 'email-preview.html');
-let { html } = buildSubscriptionEmail({
-  email: 'juan.delacruz@example.com',
-  siteUrl: process.env.SITE_URL || '',
-});
+let { html } = buildSubscriptionEmail({ email: 'juan.delacruz@example.com' });
 for (const a of Object.values(assets)) {
   html = html.replaceAll(`cid:${a.cid}`, `data:${a.contentType};base64,${a.base64}`);
 }

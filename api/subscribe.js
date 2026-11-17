@@ -108,8 +108,16 @@ module.exports = async function handler(req, res) {
 
   const from = process.env.MAIL_FROM || `ChariGo <${process.env.SMTP_USER}>`;
   try {
-    const message = buildSubscriptionEmail({ email, siteUrl: process.env.SITE_URL });
-    await mailer.sendMail({ from, to: email, ...message });
+    const message = buildSubscriptionEmail({ email });
+    // Standard mailing-list header: lets mail apps show an "Unsubscribe" option,
+    // which sends an email back to the ChariGo address.
+    const replyAddress = (from.match(/<([^>]+)>/) || [null, from])[1].trim();
+    await mailer.sendMail({
+      from,
+      to: email,
+      ...message,
+      list: { unsubscribe: { url: `mailto:${replyAddress}?subject=Unsubscribe`, comment: 'Unsubscribe' } },
+    });
   } catch (err) {
     console.error('Subscribe failed:', err.message);
     return send(res, 502, { ok: false, message: "We couldn't send your confirmation email. Please try again." });

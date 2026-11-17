@@ -63,7 +63,6 @@ its own host, port, user and password.
 | `SMTP_USER` | yes | SMTP username |
 | `SMTP_PASS` | yes | SMTP password or app password |
 | `MAIL_FROM` | no | "From" line, e.g. `ChariGo <hello@example.com>` |
-| `SITE_URL` | no | Adds a "Visit ChariGo" button to the email |
 | `NOTIFY_EMAIL` | no | Receives a note each time someone subscribes |
 
 ## Deploy
